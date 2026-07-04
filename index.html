@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>عشق</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@200;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0204;
+            --fg: #fff;
+            --accent: #ff2d55;
+            --accent-soft: #ff6b8a;
+            --accent-gold: #ffd700;
+            --pink-light: #ffb3c1;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* پس‌زمینه ساده */
+        .bg-solid {
+            position: fixed; inset: 0; z-index: 0;
+            background-color: #1a050a;
+            opacity: 0;
+            -webkit-transition: opacity 2s ease;
+            transition: opacity 2s ease;
+        }
+        .bg-solid.active { opacity: 1; }
+
+        /* وینیت ساده */
+        .vignette {
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 90;
+            background-color: rgba(0,0,0,0.5);
+            opacity: 0;
+            -webkit-transition: opacity 1.5s ease;
+            transition: opacity 1.5s ease;
+        }
+        .vignette.active { opacity: 1; }
+
+        /* فلش */
+        .flash {
+            position: fixed; inset: 0;
+            background-color: #ff2d55;
+            z-index: 200; opacity: 0; pointer-events: none;
+        }
+        .flash.active {
+            -webkit-animation: flashAnim 0.5s ease-out forwards;
+            animation: flashAnim 0.5s ease-out forwards;
+        }
+        @-webkit-keyframes flashAnim {
+            0% { opacity: 0.85; } 100% { opacity: 0; }
+        }
+        @keyframes flashAnim {
+            0% { opacity: 0.85; } 100% { opacity: 0; }
+        }
+
+        /* لرزش */
+        @-webkit-keyframes shake {
+            0%, 100% { -webkit-transform: translate(0); transform: translate(0); }
+            15% { -webkit-transform: translate(-3px, 2px); transform: translate(-3px, 2px); }
+            30% { -webkit-transform: translate(3px, -2px); transform: translate(3px, -2px); }
+            45% { -webkit-transform: translate(-2px, 3px); transform: translate(-2px, 3px); }
+            60% { -webkit-transform: translate(2px, -3px); transform: translate(2px, -3px); }
+            75% { -webkit-transform: translate(-3px, -1px); transform: translate(-3px, -1px); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translate(0); }
+            15% { transform: translate(-3px, 2px); }
+            30% { transform: translate(3px, -2px); }
+            45% { transform: translate(-2px, 3px); }
+            60% { transform: translate(2px, -3px); }
+            75% { transform: translate(-3px, -1px); }
+        }
+        body.shake {
+            -webkit-animation: shake 0.4s ease-out;
+            animation: shake 0.4s ease-out;
+        }
+
+        /* کنوس */
+        #particles {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
+        }
+
+        /* دکمه */
+        #initial {
+            z-index: 50; text-align: center;
+            -webkit-transition: -webkit-transform 0.5s ease, opacity 0.4s ease;
+            transition: transform 0.5s ease, opacity 0.4s ease;
+        }
+        #initial.hide {
+            -webkit-transform: scale(2);
+            transform: scale(2);
+            opacity: 0; pointer-events: none;
+        }
+
+        .btn-love {
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--fg);
+            background: transparent;
+            border: 2px solid var(--accent);
+            padding: 20px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            -webkit-animation: heartbeat 1.6s ease-in-out infinite;
+            animation: heartbeat 1.6s ease-in-out infinite;
+            box-shadow: 0 0 25px rgba(255,45,85,0.25);
+            -webkit-transition: box-shadow 0.3s;
+            transition: box-shadow 0.3s;
+        }
+        .btn-love:hover {
+            box-shadow: 0 0 45px rgba(255,45,85,0.45);
+        }
+        .btn-love:focus-visible {
+            outline: 2px solid var(--accent-gold);
+            outline-offset: 4px;
+        }
+
+        @-webkit-keyframes heartbeat {
+            0%, 100% { -webkit-transform: scale(1); transform: scale(1); }
+            14% { -webkit-transform: scale(1.05); transform: scale(1.05); }
+            28% { -webkit-transform: scale(1); transform: scale(1); }
+            42% { -webkit-transform: scale(1.08); transform: scale(1.08); }
+            56% { -webkit-transform: scale(1); transform: scale(1); }
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            14% { transform: scale(1.05); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.08); }
+            56% { transform: scale(1); }
+        }
+
+        /* محفور متن‌ها */
+        #love-explosion {
+            position: fixed; inset: 0; z-index: 10;
+            pointer-events: none; overflow: hidden;
+        }
+
+        .love-text {
+            position: absolute;
+            white-space: nowrap;
+            font-family: 'Vazirmatn', sans-serif;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* انیمیشن‌های ساده */
+        .anim-pop {
+            -webkit-animation: popIn 0.5s ease-out forwards;
+            animation: popIn 0.5s ease-out forwards;
+        }
+        @-webkit-keyframes popIn {
+            0% { -webkit-transform: scale(0); opacity: 0; }
+            70% { -webkit-transform: scale(1.1); opacity: 1; }
+            100% { -webkit-transform: scale(1); opacity: 1; }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .anim-fade {
+            -webkit-animation: fadeIn 0.7s ease-out forwards;
+            animation: fadeIn 0.7s ease-out forwards;
+        }
+        @-webkit-keyframes fadeIn {
+            0% { opacity: 0; -webkit-transform: translateY(20px); }
+            100% { opacity: 1; -webkit-transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .anim-slide-r {
+            -webkit-animation: slideR 0.6s ease-out forwards;
+            animation: slideR 0.6s ease-out forwards;
+        }
+        @-webkit-keyframes slideR {
+            0% { -webkit-transform: translateX(-80px); opacity: 0; }
+            100% { -webkit-transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideR {
+            0% { transform: translateX(-80px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .anim-slide-l {
+            -webkit-animation: slideL 0.6s ease-out forwards;
+            animation: slideL 0.6s ease-out forwards;
+        }
+        @-webkit-keyframes slideL {
+            0% { -webkit-transform: translateX(80px); opacity: 0; }
+            100% { -webkit-transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideL {
+            0% { transform: translateX(80px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .anim-scale {
+            -webkit-animation: scaleIn 0.8s ease-out forwards;
+            animation: scaleIn 0.8s ease-out forwards;
+        }
+        @-webkit-keyframes scaleIn {
+            0% { -webkit-transform: scale(0); opacity: 0; }
+            60% { -webkit-transform: scale(1.15); opacity: 1; }
+            100% { -webkit-transform: scale(1); opacity: 1; }
+        }
+        @keyframes scaleIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* قلب‌های ساده با متن */
+        .float-heart {
+            position: fixed; z-index: 5;
+            pointer-events: none;
+            color: #ff2d55;
+            font-size: 20px;
+            opacity: 0;
+            -webkit-animation: heartUp var(--dur) ease-in forwards;
+            animation: heartUp var(--dur) ease-in forwards;
+        }
+        @-webkit-keyframes heartUp {
+            0% { -webkit-transform: translateY(0) scale(0.5); opacity: 0; }
+            10% { opacity: 0.7; -webkit-transform: translateY(-5vh) scale(1); }
+            80% { opacity: 0.3; }
+            100% { -webkit-transform: translateY(-110vh) scale(0.6); opacity: 0; }
+        }
+        @keyframes heartUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            10% { opacity: 0.7; transform: translateY(-5vh) scale(1); }
+            80% { opacity: 0.3; }
+            100% { transform: translateY(-110vh) scale(0.6); opacity: 0; }
+        }
+
+        /* پیام مرکزی */
+        .central-msg {
+            position: fixed;
+            top: 50%; left: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            z-index: 60; text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            -webkit-animation: centralIn 1.5s ease-out forwards;
+            animation: centralIn 1.5s ease-out forwards;
+        }
+        @-webkit-keyframes centralIn {
+            0% { opacity: 0; -webkit-transform: translate(-50%, -50%) scale(0.3); }
+            60% { opacity: 1; -webkit-transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 1; -webkit-transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes centralIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+            60% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        .central-msg h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--accent);
+            background-color: rgba(0,0,0,0.5);
+            padding: 4px 16px;
+            border-radius: 16px;
+            -webkit-animation: glow 2s ease-in-out infinite alternate;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @-webkit-keyframes glow {
+            0% { text-shadow: 0 0 15px rgba(255,45,85,0.5); }
+            100% { text-shadow: 0 0 40px rgba(255,45,85,0.9), 0 0 80px rgba(255,45,85,0.4); }
+        }
+        @keyframes glow {
+            0% { text-shadow: 0 0 15px rgba(255,45,85,0.5); }
+            100% { text-shadow: 0 0 40px rgba(255,45,85,0.9), 0 0 80px rgba(255,45,85,0.4); }
+        }
+        .central-msg p {
+            font-size: 1.1rem;
+            font-weight: 200;
+            color: var(--pink-light);
+            margin-top: 14px;
+            background-color: rgba(0,0,0,0.45);
+            padding: 4px 14px;
+            border-radius: 12px;
+            opacity: 0;
+            -webkit-animation: fadeUp 1s ease-out 0.8s forwards;
+            animation: fadeUp 1s ease-out 0.8s forwards;
+        }
+        @-webkit-keyframes fadeUp {
+            0% { opacity: 0; -webkit-transform: translateY(20px); }
+            100% { opacity: 0.9; -webkit-transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 0.9; transform: translateY(0); }
+        }
+
+        /* کاهش حرکت */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                -webkit-animation-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                -webkit-transition-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="flash" id="flash"></div>
+    <div class="bg-solid" id="bgSolid"></div>
+    <div class="vignette" id="vignette"></div>
+    <canvas id="particles"></canvas>
+
+    <div id="initial">
+        <button class="btn-love" id="loveBtn" aria-label="برای دیدن سورپرایز کلیک کنید">میدونی چرا این کارارو میکنم؟</button>
+    </div>
+
+    <div id="love-explosion"></div>
+
+    <script>
+        var canvas = document.getElementById('particles');
+        var ctx = canvas.getContext('2d');
+        var particles = [];
+        var isAnimating = false;
+        var activated = false;
+        var textCount = 0;
+        var MAX_TEXTS = 90;
+        var isLowEnd = false;
+
+        /* تشخیص دستگاه ضعیف */
+        (function() {
+            var w = window.innerWidth;
+            var h = window.innerHeight;
+            /* صفحه کوچک یا حافظه کم */
+            if (w < 400 || h < 500) isLowEnd = true;
+            try {
+                if (navigator.deviceMemory && navigator.deviceMemory < 2) isLowEnd = true;
+            } catch(e) {}
+            if (isLowEnd) {
+                MAX_TEXTS = 50;
+            }
+        })();
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        var messages = [
+            'چون عاشقتم',
+            'چون تورو میخوام',
+            'چون نیازت دارم',
+            'چون بهترینی',
+            'چون زندگی منی',
+            'چون بدون تو نمیتونم',
+            'چون تو همه چی هستی',
+            'چون قلبم تو دستته',
+            'چون عشق منی',
+            'چون خوشبختی منی',
+            'چون بهت افتخار میکنم',
+            'چون دنیای همدیگه ایم',
+            'چون موهات رو خیلی دوست دارم',
+            'چون لبخندت تمام دنیای منه',
+            'چون چشمات خوشگله',
+            'چون صدات نهایت آرامشه',
+            'چون وجودت پر از نوره',
+            'چون تو یه فرشته‌ای',
+            'چون هر لحظه با تو خاصه',
+            'چون عشق تو بهم زندگی میده',
+            'چون تو تنها دلیل لبخندمی',
+            'چون دلم برات تنگ میشه',
+            'چون بدون تو دنیا تاریکه',
+            'چون تو همون کسی هستی که منتظرش بودم',
+            'چون کنار تو امنیت حس میکنم',
+            'چون هر بار که میبینمت دلم می‌لرزه',
+            'چون تو ارزش هر تلاشی رو داری'
+        ];
+
+        var textColors = [
+            '#ff2d55', '#ff6b8a', '#ffb3c1', '#ffd700',
+            '#ff8a65', '#ff4081', '#e91e63', '#f48fb1',
+            '#ffffff', '#ffcdd2', '#ef9a9a', '#ff80ab'
+        ];
+        var heartColors = [
+            '#ff2d55', '#ff6b8a', '#e91e63', '#ff4081',
+            '#c9184a', '#f48fb1', '#ffd700', '#ff80ab'
+        ];
+
+        var animTypes = ['anim-pop', 'anim-fade', 'anim-slide-r', 'anim-slide-l', 'anim-scale'];
+
+        /* ===== ذرات کنوس - فقط قلب ساده ===== */
+        function Particle(spreadY) {
+            this.reset(spreadY);
+        }
+        Particle.prototype.reset = function(spreadY) {
+            this.x = Math.random() * canvas.width;
+            this.y = spreadY
+                ? Math.random() * canvas.height
+                : canvas.height + Math.random() * 60 + 10;
+            this.size = Math.random() * 10 + 4;
+            this.vy = -(Math.random() * 1.5 + 0.3);
+            this.vx = (Math.random() - 0.5) * 0.8;
+            this.alpha = Math.random() * 0.5 + 0.15;
+            this.maxAlpha = this.alpha;
+            this.color = heartColors[Math.floor(Math.random() * heartColors.length)];
+            this.rot = Math.random() * 6.28;
+            this.rotV = (Math.random() - 0.5) * 0.02;
+            this.wobbleA = Math.random() * 1.2 + 0.3;
+            this.wobbleF = Math.random() * 0.015 + 0.005;
+            this.age = 0;
+        };
+        Particle.prototype.update = function() {
+            this.age++;
+            this.y += this.vy;
+            this.x += this.vx + Math.sin(this.age * this.wobbleF) * this.wobbleA;
+            this.rot += this.rotV;
+            if (this.y < canvas.height * 0.15) {
+                this.alpha = this.maxAlpha * (this.y / (canvas.height * 0.15));
+            }
+            if (this.y < -40 || this.alpha <= 0.01) this.reset(false);
+        };
+        Particle.prototype.draw = function(c) {
+            var a = Math.max(0, this.alpha);
+            if (a < 0.01) return;
+            c.save();
+            c.globalAlpha = a;
+            c.translate(this.x, this.y);
+            c.rotate(this.rot);
+            c.fillStyle = this.color;
+            /* قلب ساده با دو نیم‌دایره */
+            var s = Math.max(2, this.size);
+            var r = s / 4;
+            c.beginPath();
+            c.arc(-r, -r, r, Math.PI, 0, false);
+            c.arc(r, -r, r, Math.PI, 0, false);
+            c.lineTo(0, s * 0.65);
+            c.closePath();
+            c.fill();
+            c.restore();
+        };
+
+        function loopCanvas() {
+            if (!isAnimating) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (var i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw(ctx);
+            }
+            requestAnimationFrame(loopCanvas);
+        }
+
+        /* ===== تولید متن ===== */
+        function spawnText(delay) {
+            setTimeout(function() {
+                if (!activated || textCount >= MAX_TEXTS) return;
+                textCount++;
+
+                var el = document.createElement('span');
+                el.className = 'love-text';
+                el.textContent = messages[Math.floor(Math.random() * messages.length)];
+
+                var rnd = Math.random();
+                var size;
+                if (rnd < 0.08) size = Math.random() * 15 + 36;
+                else if (rnd < 0.25) size = Math.random() * 8 + 12;
+                else size = Math.random() * 14 + 18;
+
+                var maxX = Math.max(60, window.innerWidth - 200);
+                var maxY = Math.max(60, window.innerHeight - 40);
+                var x = Math.random() * maxX;
+                var y = Math.random() * maxY;
+                var color = textColors[Math.floor(Math.random() * textColors.length)];
+                var weight = [400, 700, 900][Math.floor(Math.random() * 3)];
+                var anim = animTypes[Math.floor(Math.random() * animTypes.length)];
+
+                el.style.cssText =
+                    'left:' + x + 'px;top:' + y + 'px;' +
+                    'font-size:' + size + 'px;font-weight:' + weight + ';' +
+                    'color:' + color + ';';
+                el.classList.add(anim);
+                document.getElementById('love-explosion').appendChild(el);
+
+                setTimeout(function() {
+                    if (el.parentNode) { el.parentNode.removeChild(el); textCount--; }
+                }, 11000);
+            }, delay);
+        }
+
+        /* ===== قلب‌های شناور - فقط با کاراکتر ♡ ===== */
+        function spawnHeart(delay) {
+            setTimeout(function() {
+                if (!activated) return;
+                var h = document.createElement('div');
+                h.className = 'float-heart';
+                h.textContent = '\u2665';
+
+                var x = Math.random() * window.innerWidth;
+                var dur = Math.random() * 4 + 3;
+                var color = heartColors[Math.floor(Math.random() * heartColors.length)];
+                var sz = Math.random() * 16 + 14;
+
+                h.style.cssText =
+                    'left:' + x + 'px;bottom:-30px;' +
+                    'font-size:' + sz + 'px;color:' + color + ';' +
+                    '--dur:' + dur + 's;';
+                document.body.appendChild(h);
+                setTimeout(function() {
+                    if (h.parentNode) h.parentNode.removeChild(h);
+                }, dur * 1000 + 200);
+            }, delay);
+        }
+
+        /* ===== فعال‌سازی ===== */
+        function activate() {
+            if (activated) return;
+            activated = true;
+
+            var flash = document.getElementById('flash');
+            var bgSolid = document.getElementById('bgSolid');
+            var vignette = document.getElementById('vignette');
+            var initial = document.getElementById('initial');
+
+            flash.classList.add('active');
+            document.body.classList.add('shake');
+            setTimeout(function() { document.body.classList.remove('shake'); }, 400);
+
+            initial.classList.add('hide');
+
+            setTimeout(function() { bgSolid.classList.add('active'); }, 100);
+            setTimeout(function() { vignette.classList.add('active'); }, 500);
+
+            /* کنوس */
+            isAnimating = true;
+            var pCount = isLowEnd ? 35 : 60;
+            for (var i = 0; i < pCount; i++) particles.push(new Particle(true));
+            loopCanvas();
+
+            /* موج ۱ */
+            var w1 = isLowEnd ? 10 : 16;
+            for (var i = 0; i < w1; i++) {
+                spawnText(i * 80);
+                spawnHeart(i * 60);
+            }
+
+            /* موج ۲ */
+            setTimeout(function() {
+                var w2 = isLowEnd ? 10 : 18;
+                for (var i = 0; i < w2; i++) {
+                    spawnText(i * 60);
+                    spawnHeart(i * 40);
+                }
+            }, 1200);
+
+            /* موج ۳ */
+            setTimeout(function() {
+                var w3 = isLowEnd ? 14 : 25;
+                for (var i = 0; i < w3; i++) {
+                    spawnText(i * 40);
+                    if (i % 2 === 0) spawnHeart(i * 30);
+                }
+            }, 2500);
+
+            /* موج ۴ */
+            setTimeout(function() {
+                var w4 = isLowEnd ? 16 : 30;
+                for (var i = 0; i < w4; i++) {
+                    spawnText(i * 30);
+                    if (i % 3 === 0) spawnHeart(i * 25);
+                }
+            }, 4000);
+
+            /* جریان مداوم */
+            var contInterval = isLowEnd ? 500 : 300;
+            setInterval(function() {
+                if (!activated) return;
+                var n = isLowEnd ? 1 : 2;
+                for (var i = 0; i < n; i++) {
+                    spawnText(Math.random() * 150);
+                    if (Math.random() > 0.5) spawnHeart(Math.random() * 100);
+                }
+            }, contInterval);
+
+            /* ذرات بیشتر */
+            if (!isLowEnd) {
+                setTimeout(function() {
+                    for (var i = 0; i < 30; i++) particles.push(new Particle(false));
+                }, 2000);
+            }
+
+            /* پیام مرکزی */
+            setTimeout(function() {
+                var cm = document.createElement('div');
+                cm.className = 'central-msg';
+                cm.innerHTML =
+                    '<h1>چون عاشقتم.</h1>' +
+                    '<p>و اینو هر روز بیشتر احساس میکنم. - از طرف مبین، به تو.</p>';
+                document.body.appendChild(cm);
+            }, 3200);
+        }
+
+        document.getElementById('loveBtn').addEventListener('click', activate);
+    </script>
+</body>
+</html>
